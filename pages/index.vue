@@ -1,0 +1,388 @@
+<template>
+  <main class="container">
+    <Row :gutter="50">
+      <Col :xl="{ span: 13 }">
+        <Row :gutter="50">
+          <Col :md="{ span: 12 }" class="top-space">
+            <div class="title">Calculartor A</div>
+            <Card>
+              <div class="result">{{ resultA | formatNumber }}</div>
+              <Divider />
+              <div class="resource" v-html="modResourceA"></div>
+              <!-- <div class="resource" v-html="$options.filters.formatNumber(modResourceA)"></div> -->
+
+              <Calculator @emitCalculator="clickCalculator" componentId="A" id="a"></Calculator>
+            </Card>
+          </Col>
+          <Col :md="{ span: 12 }" class="top-space">
+            <div class="title">Calculartor B</div>
+            <Card>
+              <div class="result">{{ resultB | formatNumber }}</div>
+              <Divider />
+              <div class="resource" v-html="modResourceB"></div>
+              <Calculator @emitCalculator="clickCalculator" componentId="B" id="b"></Calculator>
+            </Card>
+          </Col>
+        </Row>
+      </Col>
+      <Col :xl="{ span: 11 }" class="top-space">
+        <section style="margin: -10px 0 20px">
+          <Row :gutter="15">
+            <Col :md="{ span: 4 }">
+              <div class="title">Results</div>
+            </Col>
+            <Col :md="{ span: 13 }">
+              <Input v-model="search" placeholder="Search by result, date" clearable />
+            </Col>
+            <Col :md="{ span: 7 }">
+              <Select v-model="filterSelect" @input="isSelect($event)">
+                <Option value="All">All</Option>
+                <Option value="A">A</Option>
+                <Option value="B">B</Option>
+              </Select>
+            </Col>
+          </Row>
+        </section>
+        <Card style="min-height: 118px">
+          <div v-for="(e, index) in filteredSearch" :key="index">
+            <div class="title">Calulator {{ e.id }}</div>
+            <div class="date">{{ e.date }} - {{ e.time }}</div>
+            <div class="result">{{ e.result | formatNumber }}</div>
+            <Divider />
+            <div class="resource" v-html="e.resource"></div>
+          </div>
+
+          <div class="title" v-show="noResults">No Results</div>
+          <Button class="btn-clear" @click="modalClear = true" v-show="!noResults">Clear</Button>
+        </Card>
+      </Col>
+    </Row>
+
+    <Modal v-model="modalClear" width="780">
+      <p slot="header" style="color: #ff7b7b;text-align:center; font-size: 24px;">
+        <Icon type="ios-information-circle"></Icon>
+        <span>Clear confirmation</span>
+      </p>
+      <div style="text-align:center; font-size: 18px;">
+        <p>After this task is cleared, the history results will not be implemented.</p>
+        <b>Will you clear it?</b>
+      </div>
+      <div slot="footer">
+        <Button
+          type="error"
+          size="large"
+          long
+          :loading="modal_loading"
+          @click="clearHistory()"
+        >Clear</Button>
+      </div>
+    </Modal>
+  </main>
+</template>
+
+<script>
+import Calculator from '@/components/Calculator'
+
+import Vue from 'vue'
+import numeral from 'numeral'
+Vue.filter('formatNumber', function (value) {
+  return numeral(value).format('0,0')
+})
+
+export default {
+  components: {
+    Calculator
+  },
+  data() {
+    return {
+      resourceA: '',
+      modResourceA: '',
+      resultA: 0,
+      aCanDot: true,
+      //-----------
+      resourceB: '',
+      modResourceB: '',
+      resultB: 0,
+      bCanDot: true,
+      //-----------
+      history: [],
+      filterSelect: 'All',
+      search: '',
+      //-----------
+      modalClear: false,
+      modal_loading: false
+    }
+  },
+  computed: {
+    filteredSearch() {
+      return this.history.filter(e => {
+        if (this.search != '') {
+          if (this.filterSelect == 'All') {
+            return e.result == this.search.toLowerCase()
+          }
+          if (this.filterSelect == 'A') {
+            return e.result == this.search.toLowerCase() && e.id == 'A'
+          }
+          if (this.filterSelect == 'B') {
+            return e.result == this.search.toLowerCase() && e.id == 'B'
+          }
+        } else {
+          if (this.filterSelect == 'All') {
+            return e
+          }
+          if (this.filterSelect == 'A') {
+            return e && e.id == 'A'
+          }
+          if (this.filterSelect == 'B') {
+            return e && e.id == 'B'
+          }
+        }
+      })
+    },
+    noResults() {
+      return this.filteredSearch.isEmpty()
+    }
+  },
+  async mounted() {
+    if (localStorage.history) {
+      this.history = JSON.parse(localStorage.getItem('history'))
+    }
+  },
+  methods: {
+    async clickCalculator(value) {
+      // console.log('Calculator', value)
+
+      if (value.id == 'A') {
+        if (value.is == 'operation') {
+          if (this.resourceA.isEmpty()) {
+            this.resourceA = `${this.resultA} ${value.valueButton} `
+          } else {
+            if (this.resourceA.at(-1) == ' ') {
+              //ลบเครื่องหมายเดิม
+              this.resourceA = this.resourceA.slice(0, -3)
+              //เพิ่มเครื่องหมายใหม่
+              this.resourceA += ` ${value.valueButton} `
+            } else {
+              this.resourceA += ` ${value.valueButton} `
+            }
+          }
+
+          //กำหนดให้เพิ่ม.ได้
+          this.aCanDot = true
+        }
+
+        if (value.is == 'number') {
+          this.resourceA += value.valueButton
+        }
+
+        if (value.is == 'dot') {
+          if (this.resourceA.isEmpty()) {
+            this.resourceA = `0${value.valueButton == '.' ? '.' : value.valueButton}`
+          } else {
+            if (this.aCanDot == true) {
+              if (this.resourceA.at(-1) == ' ') {
+                this.resourceA += `0${value.valueButton == '.' ? '.' : value.valueButton}`
+              } else {
+                this.resourceA += value.valueButton
+              }
+            }
+          }
+          //กำหนดให้เพิ่ม.อีกไม่ได้
+          this.aCanDot = false
+        }
+
+        if (value.valueButton == 'C') {
+          this.resourceA = ''
+          this.resultA = 0
+          //กำหนดให้เพิ่ม.ได้
+          this.aCanDot = true
+        }
+
+        this.modResourceA = this.resourceA
+          .replace(/\+/gi, '<span class="highlight">+</span>')
+          .replace(/x/gi, '<span class="highlight">x</span>')
+          .replace(/\- /gi, '<span class="highlight">- </span>')
+
+        if (value.is == '=' && this.resourceA.isEmpty() == false) {
+          let noSpace = await this.resourceA.removeAll(' ')
+          let mod = noSpace.replace(/\+/gi, '%2B').replace(/x/gi, '*')
+
+          let res = await this.$axios.$get('/api/?expr=' + mod)
+          this.resultA = res
+
+          let saveData = {
+            id: value.id,
+            resource: this.modResourceA,
+            result: this.resultA,
+            date: this.$moment().format('DD/MM/YYYY'),
+            time: this.$moment().format('hh:mm:ss')
+          }
+
+          this.history.unshift(saveData)
+          console.log('history', this.history)
+          this.resourceA = ''
+        }
+      }
+
+      if (value.id == 'B') {
+        if (value.is == 'operation') {
+          if (this.resourceB.isEmpty()) {
+            this.resourceB = `${this.resultB} ${value.valueButton} `
+          } else {
+            if (this.resourceB.at(-1) == ' ') {
+              //ลบเครื่องหมายเดิม
+              this.resourceB = this.resourceB.slice(0, -3)
+              //เพิ่มเครื่องหมายใหม่
+              this.resourceB += ` ${value.valueButton} `
+            } else {
+              this.resourceB += ` ${value.valueButton} `
+            }
+          }
+
+          //กำหนดให้เพิ่ม.ได้
+          this.aCanDot = true
+        }
+
+        if (value.is == 'number') {
+          this.resourceB += value.valueButton
+        }
+
+        if (value.is == 'dot') {
+          if (this.resourceB.isEmpty()) {
+            this.resourceB = `0${value.valueButton == '.' ? '.' : value.valueButton}`
+          } else {
+            if (this.aCanDot == true) {
+              if (this.resourceB.at(-1) == ' ') {
+                this.resourceB += `0${value.valueButton == '.' ? '.' : value.valueButton}`
+              } else {
+                this.resourceB += value.valueButton
+              }
+            }
+          }
+          //กำหนดให้เพิ่ม.อีกไม่ได้
+          this.aCanDot = false
+        }
+
+        if (value.valueButton == 'C') {
+          this.resourceB = ''
+          this.resultB = 0
+          //กำหนดให้เพิ่ม.ได้
+          this.aCanDot = true
+        }
+
+        this.modResourceB = this.resourceB
+          .replace(/\+/gi, '<span class="highlight">+</span>')
+          .replace(/x/gi, '<span class="highlight">x</span>')
+          .replace(/\- /gi, '<span class="highlight">- </span>')
+
+        if (value.is == '=' && this.resourceB.isEmpty() == false) {
+          let noSpace = await this.resourceB.removeAll(' ')
+          let mod = noSpace.replace(/\+/gi, '%2B').replace(/x/gi, '*')
+
+          let res = await this.$axios.$get('/api/?expr=' + mod)
+          this.resultB = res
+
+          let saveData = {
+            id: value.id,
+            resource: this.modResourceB,
+            result: this.resultB,
+            date: this.$moment().format('DD/MM/YYYY'),
+            time: this.$moment().format('hh:mm:ss')
+          }
+
+          this.history.unshift(saveData)
+          console.log('history', this.history)
+          this.resourceB = ''
+        }
+      }
+
+      localStorage.setItem('history', JSON.stringify(this.history))
+      console.log('localStorage.history', localStorage.history)
+    },
+    clearHistory() {
+        localStorage.removeItem('history')
+        this.history = []
+
+        this.modal_loading = true
+
+      setTimeout(() => {
+        this.modal_loading = false
+        this.modalClear = false
+        this.$Message.success('Successfully clear')
+      }, 1000)
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.container {
+  background-color: #f7f7f7;
+  min-height: calc(100vh - 59px);
+  max-width: 100vw;
+  overflow: hidden;
+  padding: 20px 50px 20px 50px;
+}
+
+.ivu-divider-horizontal {
+  margin: 3px 0;
+}
+
+.result {
+  font-size: 36px;
+}
+
+.resource {
+  font-size: 24px;
+  min-height: 36px;
+  margin-bottom: 15px;
+}
+
+.date {
+  float: right;
+  color: #9ac2e3;
+  font-size: 24px;
+}
+
+.top-space {
+  margin-top: 70px;
+}
+
+.btn-clear {
+  color: #ffffff;
+  background-color: #faa7a7;
+  font-size: 30px;
+
+  text-align: center;
+  vertical-align: middle;
+  touch-action: manipulation;
+  cursor: pointer;
+  background-image: none;
+  display: inline-block;
+  margin-bottom: 0;
+  white-space: nowrap;
+  line-height: 1.5;
+  user-select: none;
+  padding: 1px 15px 5px;
+  border-radius: 15px;
+  transition: color 0.2s linear, background-color 0.2s linear, border 0.2s linear, box-shadow 0.2s linear;
+
+  position: absolute;
+  right: 30px;
+  bottom: 30px;
+
+  &:hover {
+    border-color: #ff7171;
+  }
+}
+
+.ivu-btn-error {
+  background-color: #ff7b7b;
+  font-size: 24px;
+}
+
+.ivu-modal-header p {
+  height: 24px;
+  line-height: 24px;
+}
+</style>
