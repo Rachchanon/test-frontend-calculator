@@ -5,22 +5,22 @@
         <Row :gutter="50">
           <Col :md="{ span: 12 }" class="top-space">
             <div class="title">Calculartor A</div>
-            <Card>
+            <Card id="A">
               <div class="result">{{ resultA | formatNumber }}</div>
               <Divider />
               <div class="resource" v-html="modResourceA"></div>
               <!-- <div class="resource" v-html="$options.filters.formatNumber(modResourceA)"></div> -->
 
-              <Calculator @emitCalculator="clickCalculator" componentId="A" id="a"></Calculator>
+              <Calculator @emitCalculator="clickCalculator" componentId="A"></Calculator>
             </Card>
           </Col>
           <Col :md="{ span: 12 }" class="top-space">
             <div class="title">Calculartor B</div>
-            <Card>
+            <Card id="B">
               <div class="result">{{ resultB | formatNumber }}</div>
               <Divider />
               <div class="resource" v-html="modResourceB"></div>
-              <Calculator @emitCalculator="clickCalculator" componentId="B" id="b"></Calculator>
+              <Calculator @emitCalculator="clickCalculator" componentId="B"></Calculator>
             </Card>
           </Col>
         </Row>
@@ -86,7 +86,7 @@ import Calculator from '@/components/Calculator'
 import Vue from 'vue'
 import numeral from 'numeral'
 Vue.filter('formatNumber', function (value) {
-  return numeral(value).format('0,0')
+  return numeral(value).format('0,0[.][000]')
 })
 
 export default {
@@ -162,6 +162,8 @@ export default {
               this.resourceA = this.resourceA.slice(0, -3)
               //เพิ่มเครื่องหมายใหม่
               this.resourceA += ` ${value.valueButton} `
+            } else if (this.resourceA.at(-1) == '.') {
+              this.resourceA += `0 ${value.valueButton} `
             } else {
               this.resourceA += ` ${value.valueButton} `
             }
@@ -204,6 +206,12 @@ export default {
           .replace(/\- /gi, '<span class="highlight">- </span>')
 
         if (value.is == '=' && this.resourceA != '') {
+          //กรณีจบที่ตัวดำเนินการหรือทสนิยม แต่ไม่มีตัวเลขมาต่อ
+          if (this.resourceA.at(-1) == ' ' || this.resourceA.at(-1) == '.') {
+            this.resourceA += 0
+            this.modResourceA += 0
+          }
+
           let noSpace = await this.resourceA.removeAll(' ')
           let mod = await noSpace.replace(/\+/gi, '%2B').replace(/x/gi, '*')
 
@@ -234,6 +242,8 @@ export default {
               this.resourceB = this.resourceB.slice(0, -3)
               //เพิ่มเครื่องหมายใหม่
               this.resourceB += ` ${value.valueButton} `
+            } else if (this.resourceB.at(-1) == '.') {
+              this.resourceB += `0 ${value.valueButton} `
             } else {
               this.resourceB += ` ${value.valueButton} `
             }
@@ -276,6 +286,12 @@ export default {
           .replace(/\- /gi, '<span class="highlight">- </span>')
 
         if (value.is == '=' && this.resourceB != '') {
+          //กรณีจบที่ตัวดำเนินการหรือทสนิยม แต่ไม่มีตัวเลขมาต่อ
+          if (this.resourceB.at(-1) == ' ' || this.resourceB.at(-1) == '.') {
+            this.resourceB += 0
+            this.modResourceB += 0
+          }
+          
           let noSpace = await this.resourceB.removeAll(' ')
           let mod = await noSpace.replace(/\+/gi, '%2B').replace(/x/gi, '*')
 
