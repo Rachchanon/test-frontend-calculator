@@ -35,7 +35,7 @@
               <Input v-model="search" placeholder="Search by result, date" clearable />
             </Col>
             <Col :md="{ span: 7 }">
-              <Select v-model="filterSelect" @input="isSelect($event)">
+              <Select v-model="filterSelect">
                 <Option value="All">All</Option>
                 <Option value="A">A</Option>
                 <Option value="B">B</Option>
@@ -52,7 +52,7 @@
             <div class="resource" v-html="e.resource"></div>
           </div>
 
-          <div class="title" v-show="noResults">No Results</div>
+          <div class="title no-results" v-show="noResults">No Results</div>
           <Button class="btn-clear" @click="modalClear = true" v-show="!noResults">Clear</Button>
         </Card>
       </Col>
@@ -118,7 +118,7 @@ export default {
       return this.history.filter(e => {
         if (this.search != '') {
           if (this.filterSelect == 'All') {
-            return e.result == this.search.toLowerCase()
+            return e.result == this.search.toLowerCase() || e.date == this.search.toLowerCase()
           }
           if (this.filterSelect == 'A') {
             return e.result == this.search.toLowerCase() && e.id == 'A'
@@ -203,12 +203,12 @@ export default {
           .replace(/x/gi, '<span class="highlight">x</span>')
           .replace(/\- /gi, '<span class="highlight">- </span>')
 
-        if (value.is == '=' && this.resourceA.isEmpty() == false) {
+        if (value.is == '=' && this.resourceA != '') {
           let noSpace = await this.resourceA.removeAll(' ')
-          let mod = noSpace.replace(/\+/gi, '%2B').replace(/x/gi, '*')
+          let mod = await noSpace.replace(/\+/gi, '%2B').replace(/x/gi, '*')
 
           let res = await this.$axios.$get('/api/?expr=' + mod)
-          this.resultA = res
+          this.resultA = await res
 
           let saveData = {
             id: value.id,
@@ -275,12 +275,12 @@ export default {
           .replace(/x/gi, '<span class="highlight">x</span>')
           .replace(/\- /gi, '<span class="highlight">- </span>')
 
-        if (value.is == '=' && this.resourceB.isEmpty() == false) {
+        if (value.is == '=' && this.resourceB != '') {
           let noSpace = await this.resourceB.removeAll(' ')
-          let mod = noSpace.replace(/\+/gi, '%2B').replace(/x/gi, '*')
+          let mod = await noSpace.replace(/\+/gi, '%2B').replace(/x/gi, '*')
 
           let res = await this.$axios.$get('/api/?expr=' + mod)
-          this.resultB = res
+          this.resultB = await res
 
           let saveData = {
             id: value.id,
@@ -384,5 +384,11 @@ export default {
 .ivu-modal-header p {
   height: 24px;
   line-height: 24px;
+}
+
+.no-results {
+  display: block;
+  margin-top: 15px;
+  text-align: center;
 }
 </style>
