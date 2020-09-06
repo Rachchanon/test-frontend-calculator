@@ -118,13 +118,14 @@ export default {
       return this.history.filter(e => {
         if (this.search != '') {
           if (this.filterSelect == 'All') {
-            return e.result == this.search.toLowerCase() || e.date == this.search.toLowerCase()
+            // return e.result == this.search || e.date == this.search.toLowerCase()
+            return e.result == numeral(this.search).format('0[.][000]') || e.date == this.search
           }
           if (this.filterSelect == 'A') {
-            return e.result == this.search.toLowerCase() && e.id == 'A'
+            return e.result == numeral(this.search).format('0[.][000]') && e.id == 'A'
           }
           if (this.filterSelect == 'B') {
-            return e.result == this.search.toLowerCase() && e.id == 'B'
+            return e.result == numeral(this.search).format('0[.][000]') && e.id == 'B'
           }
         } else {
           if (this.filterSelect == 'All') {
