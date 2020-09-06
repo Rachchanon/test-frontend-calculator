@@ -209,8 +209,8 @@ export default {
         if (value.is == '=' && this.resourceA != '') {
           //กรณีจบที่ตัวดำเนินการหรือทสนิยม แต่ไม่มีตัวเลขมาต่อ
           if (this.resourceA.at(-1) == ' ' || this.resourceA.at(-1) == '.') {
-            this.resourceA += 0
-            this.modResourceA += 0
+            this.resourceA += await 0
+            this.modResourceA += await 0
           }
 
           let noSpace = await this.resourceA.removeAll(' ')
@@ -289,8 +289,8 @@ export default {
         if (value.is == '=' && this.resourceB != '') {
           //กรณีจบที่ตัวดำเนินการหรือทสนิยม แต่ไม่มีตัวเลขมาต่อ
           if (this.resourceB.at(-1) == ' ' || this.resourceB.at(-1) == '.') {
-            this.resourceB += 0
-            this.modResourceB += 0
+            this.resourceB += await 0
+            this.modResourceB += await 0
           }
           
           let noSpace = await this.resourceB.removeAll(' ')
