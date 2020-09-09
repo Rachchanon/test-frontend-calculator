@@ -41,10 +41,7 @@ export default {
    ** Plugins to load before mounting the App
    ** https://nuxtjs.org/guide/plugins
    */
-  plugins: [
-    "@/plugins/iview",
-    { src: "@/plugins/sugar", ssr: false }
-  ],
+  plugins: ["@/plugins/iview", { src: "@/plugins/sugar", ssr: false }],
   /*
    ** Auto import components
    ** See https://nuxtjs.org/api/configuration-components
@@ -53,19 +50,24 @@ export default {
   /*
    ** Nuxt.js dev-modules
    */
-  buildModules: [
-    '@nuxtjs/moment'
-  ],
+  buildModules: ["@nuxtjs/moment"],
   moment: {
-    locales: ['th']
+    locales: ["th"]
   },
   /*
    ** Nuxt.js modules
    */
   modules: [
     // Doc: https://axios.nuxtjs.org/usage
-    "@nuxtjs/axios"
+    "@nuxtjs/axios",
+    "@nuxtjs/style-resources"
   ],
+  styleResources: {
+    scss: [
+      './assets/scss/vars/*.scss',
+      './assets/scss/mixins/*.scss'
+      ]
+  },
   /*
    ** Axios module configuration
    ** See https://axios.nuxtjs.org/options

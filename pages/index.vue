@@ -84,6 +84,7 @@
 import Calculator from '@/components/Calculator'
 
 import Vue from 'vue'
+import { mapState } from 'vuex'
 import numeral from 'numeral'
 Vue.filter('formatNumber', function (value) {
   return numeral(value).format('0,0[.][000]')
@@ -99,17 +100,20 @@ export default {
       modResourceA: '',
       resultA: 0,
       aCanDot: true,
+      aCanDot: true,
+      limit1ClickA: true, //ไว้ป้องกันเวลาคลิก ปุ่ม= รั่วๆ
       //-----------
       resourceB: '',
       modResourceB: '',
       resultB: 0,
       bCanDot: true,
+      limit1ClickB: true, //ไว้ป้องกันเวลาคลิก ปุ่ม= รั่วๆ
       //-----------
       history: [],
       filterSelect: 'All',
       search: '',
       //-----------
-      modalClear: false,
+      modalClear: this.$store.state.modalClear,
       modal_loading: false
     }
   },
@@ -206,7 +210,7 @@ export default {
           .replace(/x/gi, '<span class="highlight">x</span>')
           .replace(/\- /gi, '<span class="highlight">- </span>')
 
-        if (value.is == '=' && this.resourceA != '') {
+        if (value.is == '=' &&  this.resourceA != '' && this.limit1ClickA) {
           //กรณีจบที่ตัวดำเนินการหรือทสนิยม แต่ไม่มีตัวเลขมาต่อ
           if (this.resourceA.at(-1) == ' ' || this.resourceA.at(-1) == '.') {
             this.resourceA += await 0
@@ -216,10 +220,11 @@ export default {
           let noSpace = await this.resourceA.removeAll(' ')
           let mod = await noSpace.replace(/\+/gi, '%2B').replace(/x/gi, '*')
 
+          this.limit1ClickA = await false;
           let res = await this.$axios.$get('/api/?expr=' + mod)
           this.resultA = await res
 
-          let saveData = {
+          let saveData = await {
             id: value.id,
             resource: this.modResourceA,
             result: this.resultA,
@@ -228,8 +233,9 @@ export default {
           }
 
           this.history.unshift(saveData)
-          console.log('history', this.history)
-          this.resourceA = ''
+          // console.log('history', this.history)
+          this.resourceA = await ''
+          this.limit1ClickA = await true;
         }
       }
 
@@ -286,20 +292,21 @@ export default {
           .replace(/x/gi, '<span class="highlight">x</span>')
           .replace(/\- /gi, '<span class="highlight">- </span>')
 
-        if (value.is == '=' && this.resourceB != '') {
+        if (value.is == '=' &&  this.resourceB != '' && this.limit1ClickB) {
           //กรณีจบที่ตัวดำเนินการหรือทสนิยม แต่ไม่มีตัวเลขมาต่อ
           if (this.resourceB.at(-1) == ' ' || this.resourceB.at(-1) == '.') {
             this.resourceB += await 0
             this.modResourceB += await 0
           }
-          
+
           let noSpace = await this.resourceB.removeAll(' ')
           let mod = await noSpace.replace(/\+/gi, '%2B').replace(/x/gi, '*')
 
+          this.limit1ClickB = await false;
           let res = await this.$axios.$get('/api/?expr=' + mod)
           this.resultB = await res
 
-          let saveData = {
+          let saveData = await {
             id: value.id,
             resource: this.modResourceB,
             result: this.resultB,
@@ -308,8 +315,9 @@ export default {
           }
 
           this.history.unshift(saveData)
-          console.log('history', this.history)
-          this.resourceB = ''
+          // console.log('history', this.history)
+          this.resourceB = await ''
+          this.limit1ClickB = await true;
         }
       }
 
@@ -317,24 +325,32 @@ export default {
       console.log('localStorage.history', localStorage.history)
     },
     clearHistory() {
-        localStorage.removeItem('history')
-        this.history = []
+      localStorage.removeItem('history')
+      this.history = []
 
-        this.modal_loading = true
+      this.modal_loading = true
 
       setTimeout(() => {
         this.modal_loading = false
         this.modalClear = false
         this.$Message.success('Successfully clear')
-      }, 1000)
+      }, 600)
+    },
+    openModal() {
+      this.$store.commit('modalClear', true)
+      console.log('aa')
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+@function rem($size) {
+  @return $size / 16px * 1rem;
+}
+
 .container {
-  background-color: #f7f7f7;
+  background-color: $color_background-container;
   min-height: calc(100vh - 59px);
   max-width: 100vw;
   overflow: hidden;
@@ -346,19 +362,19 @@ export default {
 }
 
 .result {
-  font-size: 36px;
+  font-size: rem($fontSize-2);
 }
 
 .resource {
-  font-size: 24px;
-  min-height: 36px;
+  font-size: rem($fontSize-4);
+  min-height: rem($fontSize-2);
   margin-bottom: 15px;
 }
 
 .date {
   float: right;
-  color: #9ac2e3;
-  font-size: 24px;
+  color: $color_font-date;
+  font-size: rem($fontSize-4);
 }
 
 .top-space {
@@ -366,36 +382,24 @@ export default {
 }
 
 .btn-clear {
-  color: #ffffff;
-  background-color: #faa7a7;
-  font-size: 30px;
-
-  text-align: center;
-  vertical-align: middle;
-  touch-action: manipulation;
-  cursor: pointer;
-  background-image: none;
-  display: inline-block;
-  margin-bottom: 0;
-  white-space: nowrap;
-  line-height: 1.5;
-  user-select: none;
-  padding: 1px 15px 5px;
-  border-radius: 15px;
-  transition: color 0.2s linear, background-color 0.2s linear, border 0.2s linear, box-shadow 0.2s linear;
-
+  color: $color_font-btn-1;
+  background-color: $color_background-btn-clear;
+  font-size: rem($fontSize-1);
+  @include buttonStyle;
   position: absolute;
   right: 30px;
   bottom: 30px;
+  padding: 1px 15px 5px;
+  border-radius: 15px;
 
   &:hover {
-    border-color: #ff7171;
+    border-color: darken($color_background-btn-clear, 10%);
   }
 }
 
 .ivu-btn-error {
-  background-color: #ff7b7b;
-  font-size: 24px;
+  background-color: darken($color_background-btn-clear, 10%);
+  font-size: rem($fontSize-4);
 }
 
 .ivu-modal-header p {
