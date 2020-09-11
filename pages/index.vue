@@ -87,7 +87,7 @@ import Vue from 'vue'
 import { mapState } from 'vuex'
 import numeral from 'numeral'
 Vue.filter('formatNumber', function (value) {
-  return numeral(value).format('0,0[.][000]')
+  return numeral(value).format('0,0[.][0000000000]')
 })
 
 export default {
@@ -99,7 +99,6 @@ export default {
       resourceA: '',
       modResourceA: '',
       resultA: 0,
-      aCanDot: true,
       aCanDot: true,
       limit1ClickA: true, //ไว้ป้องกันเวลาคลิก ปุ่ม= รั่วๆ
       //-----------
@@ -123,13 +122,13 @@ export default {
         if (this.search != '') {
           if (this.filterSelect == 'All') {
             // return e.result == this.search || e.date == this.search.toLowerCase()
-            return e.result == numeral(this.search).format('0[.][000]') || e.date == this.search
+            return e.result == numeral(this.search).format('0,0[.][0000000000]') || e.date == this.search
           }
           if (this.filterSelect == 'A') {
-            return e.result == numeral(this.search).format('0[.][000]') && e.id == 'A'
+            return e.result == numeral(this.search).format('0,0[.][0000000000]') && e.id == 'A'
           }
           if (this.filterSelect == 'B') {
-            return e.result == numeral(this.search).format('0[.][000]') && e.id == 'B'
+            return e.result == numeral(this.search).format('0,0[.][0000000000]') && e.id == 'B'
           }
         } else {
           if (this.filterSelect == 'All') {
@@ -236,6 +235,8 @@ export default {
           // console.log('history', this.history)
           this.resourceA = await ''
           this.limit1ClickA = await true;
+          //กำหนดให้เพิ่ม.ได้
+          this.aCanDot = true
         }
       }
 
@@ -257,7 +258,7 @@ export default {
           }
 
           //กำหนดให้เพิ่ม.ได้
-          this.aCanDot = true
+          this.bCanDot = true
         }
 
         if (value.is == 'number') {
@@ -268,7 +269,7 @@ export default {
           if (this.resourceB.isEmpty()) {
             this.resourceB = `0${value.valueButton == '.' ? '.' : value.valueButton}`
           } else {
-            if (this.aCanDot == true) {
+            if (this.bCanDot == true) {
               if (this.resourceB.at(-1) == ' ') {
                 this.resourceB += `0${value.valueButton == '.' ? '.' : value.valueButton}`
               } else {
@@ -277,14 +278,14 @@ export default {
             }
           }
           //กำหนดให้เพิ่ม.อีกไม่ได้
-          this.aCanDot = false
+          this.bCanDot = false
         }
 
         if (value.valueButton == 'C') {
           this.resourceB = ''
           this.resultB = 0
           //กำหนดให้เพิ่ม.ได้
-          this.aCanDot = true
+          this.bCanDot = true
         }
 
         this.modResourceB = this.resourceB
@@ -318,6 +319,8 @@ export default {
           // console.log('history', this.history)
           this.resourceB = await ''
           this.limit1ClickB = await true;
+          //กำหนดให้เพิ่ม.ได้
+          this.bCanDot = true
         }
       }
 
