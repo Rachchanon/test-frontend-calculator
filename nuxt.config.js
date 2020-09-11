@@ -60,8 +60,13 @@ export default {
   modules: [
     // Doc: https://axios.nuxtjs.org/usage
     "@nuxtjs/axios",
-    "@nuxtjs/style-resources"
+    "@nuxtjs/style-resources",
+    "nuxt-purgecss"
   ],
+  purgeCSS: {
+    whitelist: () => ["html", "body"],
+    whitelistPatterns: () =>  [/ivu*/],
+  },
   styleResources: {
     scss: [
       './assets/scss/vars/*.scss',
@@ -83,5 +88,5 @@ export default {
    ** Build configuration
    ** See https://nuxtjs.org/api/configuration-build/
    */
-  build: {}
+   build: {}
 };
