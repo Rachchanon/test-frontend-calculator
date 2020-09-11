@@ -87,7 +87,7 @@ import Vue from 'vue'
 import { mapState } from 'vuex'
 import numeral from 'numeral'
 Vue.filter('formatNumber', function (value) {
-  return numeral(value).format('0,0[.][0000000000]')
+  return numeral(value).format('0[,]0[.][0000000000]')
 })
 
 export default {
@@ -122,13 +122,13 @@ export default {
         if (this.search != '') {
           if (this.filterSelect == 'All') {
             // return e.result == this.search || e.date == this.search.toLowerCase()
-            return e.result == numeral(this.search).format('0,0[.][0000000000]') || e.date == this.search
+            return e.result == numeral(this.search).format('0') || e.date == this.search
           }
           if (this.filterSelect == 'A') {
-            return e.result == numeral(this.search).format('0,0[.][0000000000]') && e.id == 'A'
+            return e.result == numeral(this.search).format('0') && e.id == 'A'
           }
           if (this.filterSelect == 'B') {
-            return e.result == numeral(this.search).format('0,0[.][0000000000]') && e.id == 'B'
+            return e.result == numeral(this.search).format('0') && e.id == 'B'
           }
         } else {
           if (this.filterSelect == 'All') {
@@ -150,6 +150,8 @@ export default {
   async mounted() {
     if (localStorage.history) {
       this.history = JSON.parse(localStorage.getItem('history'))
+
+      console.log('this.history', this.history);
     }
   },
   methods: {
