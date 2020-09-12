@@ -9,9 +9,13 @@
               <div class="result">{{ resultA | formatNumber }}</div>
               <Divider />
               <div class="resource" v-html="modResourceA"></div>
-              <!-- <div class="resource" v-html="$options.filters.formatNumber(modResourceA)"></div> -->
 
-              <Calculator @emitCalculator="clickCalculator" componentId="A"></Calculator>
+              <!-- <Calculator @emitCalculator="clickCalculator" componentId="A"></Calculator> -->
+              
+              <!-- กรณีอยากทำเป็น dynamic component -->
+              <keep-alive>
+                <component is="Calculator" @emitCalculator="clickCalculator" componentId="A"></component>
+              </keep-alive>
             </Card>
           </Col>
           <Col :md="{ span: 12 }" class="top-space">
