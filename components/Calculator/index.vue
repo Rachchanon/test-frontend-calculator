@@ -1,51 +1,51 @@
 <template>
   <div class="button-aria">
-    <div class="num0" @click="$emit('emitCalculator', {id: componentId, valueButton: 0, is: 'number'})">
+    <div class="num0" @click="shareData('0', 'number')">
       <AppButton btn-style="btn-calculator">0</AppButton>
     </div>
-    <div class="num1" @click="$emit('emitCalculator', {id: componentId, valueButton: 1, is: 'number'})">
+    <div class="num1" @click="shareData('1', 'number')">
       <AppButton btn-style="btn-calculator">1</AppButton>
     </div>
-    <div class="num2" @click="$emit('emitCalculator', {id: componentId, valueButton: 2, is: 'number'})">
+    <div class="num2" @click="shareData('2', 'number')">
       <AppButton btn-style="btn-calculator">2</AppButton>
     </div>
-    <div class="num3" @click="$emit('emitCalculator', {id: componentId, valueButton: 3, is: 'number'})">
+    <div class="num3" @click="shareData('3', 'number')">
       <AppButton btn-style="btn-calculator">3</AppButton>
     </div>
-    <div class="num4" @click="$emit('emitCalculator', {id: componentId, valueButton: 4, is: 'number'})">
+    <div class="num4" @click="shareData('4', 'number')">
       <AppButton btn-style="btn-calculator">4</AppButton>
     </div>
-    <div class="num5" @click="$emit('emitCalculator', {id: componentId, valueButton: 5, is: 'number'})">
+    <div class="num5" @click="shareData('5', 'number')">
       <AppButton btn-style="btn-calculator">5</AppButton>
     </div>
-    <div class="num6" @click="$emit('emitCalculator', {id: componentId, valueButton: 6, is: 'number'})">
+    <div class="num6" @click="shareData('6', 'number')">
       <AppButton btn-style="btn-calculator">6</AppButton>
     </div>
-    <div class="num7" @click="$emit('emitCalculator', {id: componentId, valueButton: 7, is: 'number'})">
+    <div class="num7" @click="shareData('7', 'number')">
       <AppButton btn-style="btn-calculator">7</AppButton>
     </div>
-    <div class="num8" @click="$emit('emitCalculator', {id: componentId, valueButton: 8, is: 'number'})">
+    <div class="num8" @click="shareData('8', 'number')">
       <AppButton btn-style="btn-calculator">8</AppButton>
     </div>
-    <div class="num9" @click="$emit('emitCalculator', {id: componentId, valueButton: 9, is: 'number'})">
+    <div class="num9" @click="shareData('9', 'number')">
       <AppButton btn-style="btn-calculator">9</AppButton>
     </div>
-    <div class="btn-dot" @click="$emit('emitCalculator', {id: componentId, valueButton: '.', is: 'dot'})">
+    <div class="btn-dot" @click="shareData('.', 'dot')">
       <AppButton btn-style="btn-calculator">.</AppButton>
     </div>
-    <div class="btn-clear" @click="$emit('emitCalculator', {id: componentId, valueButton: 'C', is: 'clear'})">
+    <div class="btn-clear" @click="shareData('C', 'clear')">
       <AppButton btn-style="btn-calculator">C</AppButton>
     </div>
-    <div class="btn-multiply" @click="$emit('emitCalculator', {id: componentId, valueButton: 'x', is: 'operation'})">
+    <div class="btn-multiply" @click="shareData('x', 'operation')">
       <AppButton btn-style="btn-calculator">x</AppButton>
     </div>
-    <div class="btn-minus" @click="$emit('emitCalculator', {id: componentId, valueButton: '-', is: 'operation'})">
+    <div class="btn-minus" @click="shareData('-', 'operation')">
       <AppButton btn-style="btn-calculator">-</AppButton>
     </div>
-    <div class="btn-plus" @click="$emit('emitCalculator', {id: componentId, valueButton: '+', is: 'operation'})">
+    <div class="btn-plus" @click="shareData('+', 'operation')">
       <AppButton btn-style="btn-calculator">+</AppButton>
     </div>
-    <div class="btn-result" @click="$emit('emitCalculator', {id: componentId, valueButton: '=', is: '='})">
+    <div class="btn-result" @click="shareData('=', '=')">
       <AppButton btn-style="btn-calculator">=</AppButton>
     </div>
   </div>
@@ -58,7 +58,8 @@ export default {
   props: {
     componentId: {
       type: String,
-      default: ''
+      default: '',
+      required: true
     }
   },
   components: {
@@ -67,7 +68,15 @@ export default {
   data() {
     return {}
   },
-  methods: {}
+  methods: {
+    shareData(value, symbol) {
+      this.$emit('emitCalculator', {
+        id: this.componentId,
+        valueButton: value,
+        is: symbol
+      })
+    }
+  }
 }
 </script>
 
