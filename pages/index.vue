@@ -57,12 +57,12 @@
           </div>
 
           <div class="title no-results" v-show="noResults">No Results</div>
-          <Button class="btn-clear" @click="modalClear = true" v-show="!noResults">Clear</Button>
+          <Button class="btn-clear" @click="openModal()" v-show="!noResults">Clear</Button>
         </Card>
       </Col>
     </Row>
 
-    <Modal v-model="modalClear" width="780">
+    <Modal v-model="modalClear" width="780" @on-cancel="closeModal()">
       <p slot="header" style="color: #ff7b7b;text-align:center; font-size: 24px;">
         <Icon type="ios-information-circle"></Icon>
         <span>Clear confirmation</span>
@@ -116,11 +116,13 @@ export default {
       filterSelect: 'All',
       search: '',
       //-----------
-      modalClear: this.$store.state.modalClear,
       modal_loading: false
     }
   },
   computed: {
+    modalClear() {
+      return this.$store.getters.modalClear
+    },
     filteredSearch() {
       return this.history.filter(e => {
         if (this.search != '') {
@@ -155,7 +157,7 @@ export default {
     if (localStorage.history) {
       this.history = JSON.parse(localStorage.getItem('history'))
 
-      console.log('this.history', this.history);
+      console.log('localStorage.history', localStorage.history);
     }
   },
   methods: {
@@ -341,13 +343,15 @@ export default {
 
       setTimeout(() => {
         this.modal_loading = false
-        this.modalClear = false
+        this.$store.dispatch('modalClear', false)
         this.$Message.success('Successfully clear')
       }, 600)
     },
     openModal() {
-      this.$store.commit('modalClear', true)
-      console.log('aa')
+      this.$store.dispatch('modalClear', true)
+    },
+    closeModal() {
+      this.$store.dispatch('modalClear', false)
     }
   }
 }

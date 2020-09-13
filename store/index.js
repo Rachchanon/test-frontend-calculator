@@ -1,8 +1,21 @@
-import Vuex from 'vuex'
-import modal from './modules/modal'
+export const state = () => ({
+  modalClear: false,
+});
 
-new Vuex.Store({
-  modules: {
-    modal
+export const mutations = {
+  modalClear (state, data) {
+    state.modalClear = data;
   }
-})
+};
+
+export const actions = {
+  modalClear: (state , data) => {
+    state.commit("modalClear", data);
+  }
+};
+
+export const getters = {
+  modalClear: (state) => {
+    return state.modalClear
+  }
+};
